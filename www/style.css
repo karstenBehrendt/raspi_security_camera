@@ -1,0 +1,57 @@
+
+#main
+{
+	width: 70%; 
+	max-width=1000px; 
+	margin-left: auto; 
+	margin-right: auto; 
+}
+
+#mobileMain
+{
+	width: 85%; 
+	/* max-height: 30%; */  
+	margin-left: auto; 
+	margin-right: auto; 
+}
+
+
+
+#heading
+{
+	text-align:center; 
+	font-family: "Arial"; 
+}
+
+
+
+#mjpeg_dest
+{
+	width: 100%; 
+}
+
+
+#bigButtons
+{
+	text-align: center; 
+}
+
+
+.bigButton
+{
+	width:24%; 
+	height: 100px; 
+	color:black; 
+	font-size: 25px; 
+
+
+}
+
+#mobileFeed
+{
+
+}
+
+
+
+

@@ -15,4 +15,5 @@ Installation:
 
 3) ./RPi_Cam_Web_Interface_Installer.sh install
 
-
+Default passwords: 
+guest: guest, test: test, admin: admin

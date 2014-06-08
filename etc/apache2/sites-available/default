@@ -4,11 +4,11 @@
 	DocumentRoot /var/www
 	<Directory />
 		Options FollowSymLinks
-		AllowOverride None
+		AllowOverride None 
 	</Directory>
 	<Directory /var/www/>
 		Options Indexes FollowSymLinks MultiViews
-		AllowOverride None
+		AllowOverride AuthConfig
 		Order allow,deny
 		allow from all
 	</Directory>

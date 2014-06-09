@@ -1,7 +1,7 @@
 AuthUserFile /home/pi/RPi_Cam_Web_Interface/www/.htpasswd
 AuthType Basic
 AuthName "Camera Access"
-Require valid-user
+#Require valid-user
 
 
 <Files "index.html">

@@ -117,11 +117,20 @@ case "$1" in
         sudo killall raspimjpeg
         echo "Stopped"
         ;;
-
-
-  *)
-        echo "No option selected"
-        ;;
+	update)
+				echo "update wants to be implemented"
+				;;
+	*)
+				echo "Options are: "
+				echo "	install"
+				echo "	remove"
+				echo "	update"
+				echo "	autostart_yes"
+				echo "	start"
+				echo "	stop"
+				;;
+  
+  
 
 esac
 

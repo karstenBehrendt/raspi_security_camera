@@ -62,11 +62,13 @@ case "$1" in
         sudo apt-get install -y apache2 php5 libapache2-mod-php5 gpac motion
 
         sudo cp -r www/* /var/www/
-	sudo chmod 644 /var/www/.htaccess /var/www/.htpasswd
+				sudo chmod 644 /var/www/.htaccess /var/www/.htpasswd
         sudo mkdir -p /var/www/media
         sudo chown -R www-data:www-data /var/www
         sudo mknod /var/www/FIFO p
+				sudo mknod /var/www/FIFO2 p
         sudo chmod 666 /var/www/FIFO
+				sudo chmod 666 /var/www/FIFO2
         sudo cp -r etc/apache2/sites-available/default /etc/apache2/sites-available/
         sudo chmod 644 /etc/apache2/sites-available/default
         sudo cp etc/apache2/conf.d/other-vhosts-access-log /etc/apache2/conf.d/other-vhosts-access-log

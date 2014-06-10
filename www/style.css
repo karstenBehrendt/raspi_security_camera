@@ -2,7 +2,7 @@
 #main
 {
 	width: 70%; 
-	max-width=1000px; 
+	max-width:1000px; 
 	margin-left: auto; 
 	margin-right: auto; 
 }
@@ -26,6 +26,11 @@
 
 
 #mjpeg_dest
+{
+	width: 100%; 
+}
+
+#recordedVideo
 {
 	width: 100%; 
 }

@@ -41,7 +41,7 @@ def get_last_file():
 	if debug: 
 		print str(num_files) + " files in ram"
 		print files_in_ram
-	if(num_files >= 1): 
+	if(num_files >= 2): 
 		last_file = files_in_ram[0] # take the last stored video
 		return last_file
 	else: 
@@ -68,6 +68,8 @@ def process_video(motion_counter):
 	# give it sometime to be completed
 	time.sleep(5)
 	file_name = get_last_file()
+	if file_name is None: # first video will be ignored
+		return 
 	if motion_counter > motion_threshold: 
 		if debug: 
 			print "converting to mp4 and storing"
@@ -104,6 +106,10 @@ def main():
 	motion_active = False
 	motion_counter = 0
 	
+	# clear pipe
+	fifo = os.open(motion_fifo, os.O_RDONLY|os.O_NONBLOCK)
+	fifo_content = os.read(fifo, 100)
+	os.close(fifo)
 	
 	# Yes, for ever and ever without stopping (ever)
 	while True: 
@@ -153,6 +159,7 @@ def main():
 			# reset all counters and start new video
 			motion_counter = 0	
 			current_video_length = 0
+			motion_active = False # for now, change activation method to motion frames
 			if debug: 
 				print "Starting new video"
 			start_video()

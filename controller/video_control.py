@@ -11,13 +11,13 @@ from threading import Thread
 debug = True
 
 sleep_interval = 0.2 # in seconds
-motion_threshold = 0
+motion_threshold = 1.0 # approx seconds of motion in video
 video_length = 30 # in seconds
 mjpeg_fifo = "/var/www/FIFO"
 motion_fifo = "/var/www/FIFO2"
 ram_location = "/var/www/ram_media/"
 storage_location = "/var/www/media/"
-
+status_file = "/var/www/status_mjpeg.txt"
 
 
 
@@ -42,7 +42,7 @@ def get_last_file():
 		print str(num_files) + " files in ram"
 		print files_in_ram
 	if(num_files >= 2): 
-		last_file = files_in_ram[0] # take the last stored video
+		last_file = files_in_ram[-2] # take the last stored video
 		return last_file
 	else: 
 		print "No file to be processed"
@@ -119,8 +119,8 @@ def main():
 		
 		# At some point, there was something I wanted to see...
 		if(debug): 
-			print str(current_video_length) + " motion active: " + str(motion_active)
-		
+			#print str(current_video_length) + " motion active: " + str(motion_active)
+			pass
 
 		# Check for motion information in pipe
 		try:
@@ -138,16 +138,20 @@ def main():
 					# 'ca 1' is sent if motion was detected
 					if fifo_line == "ca 1": 
 						if debug:
-							print "motion detected"
+							print "motion detected at " + str(current_video_length)
 						motion_active = True
 						motion_counter +=sleep_interval
+						with open(status_file, 'w') as f:
+							f.write("storing")
 					# 'ca 0' is sent if motion stopped, change state to no motion
 					if fifo_line == "ca 0": 
 						if debug: 
-							print "motion stopped"
+							print "motion stopped" + str(current_video_length)
 						motion_active = False
+						with open(status_file, 'w') as f: 
+							f.write("removing")
 		except:
-			print "pipe wasn't ready - replace with socket or temporary cat"
+			print "pipe wasn't ready - replace with socket in case of spare time"
 
 		
 		# check if time seconds # video interval = 0
@@ -168,9 +172,4 @@ def main():
 		
 		
 main()
-		
-		
-		
-
-
 

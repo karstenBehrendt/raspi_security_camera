@@ -65,7 +65,7 @@ image_quality 85
 preview_path /dev/shm/mjpeg/cam.jpg
 image_path /var/www/ram_media/image_%04d_%04d%02d%02d_%02d%02d%02d.jpg
 video_path /var/www/ram_media/video_%04d_%04d%02d%02d_%02d%02d%02d.h264
-status_file /var/www/status_mjpeg.txt
+status_file /dev/null#/var/www/status_mjpeg.txt
 control_file /var/www/FIFO
 
 #

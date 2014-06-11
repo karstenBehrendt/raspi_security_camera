@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en"> 
 <head>
 	<title> Camera Feed </title>
+	<meta charset="utf-8"/>
 	<link rel="stylesheet" type="text/css" href="style.css" />
 	<script src="script.js"></script>
 </head>
@@ -18,12 +19,26 @@
 	<!-- MJPEG - camera feed -->
 	<div><img id="mjpeg_dest"></div>
 	
+	<!-- Record Status -->
+	<div id="videoRecording">video recording is active</div>
+	<div id="videoWillBeStored">this part is not going to be stored</div>
+	
 	<!-- Buttons for settings and stuff -->
 	<div id="bigButtons">
-		<button class="bigButton" onclick="window.location.href='preview.php'">Recordings</button>
-		<button class="bigButton">Settings</button>
-		<button class="bigButton">Update</button>
-		<button class="bigButton">Restart</button>
+		<div class="bigButtonDiv">
+			<button class="bigButton" onclick="window.location.href='preview.php';">Videos</button>
+		</div>
+		<div class="bigButtonDiv" id="recordingButtonDiv">
+			<button class="bigButton" onclick="startRecording();">Record</button>
+		</div>
+		<div class="bigButtonDiv" id="settingsDiv">
+			<button class="bigButton" onclick="splitSettingsDiv();">Settings</button>
+		</div>
+		<div class="bigButtonDiv">
+			<button class="smallButton"> Status </button><br>
+			<button class="smallButton"> Restart </button><br>
+			<button class="smallButton"> Reboot </button>
+		</div>
 	</div>
 	
 

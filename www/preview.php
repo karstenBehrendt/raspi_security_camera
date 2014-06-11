@@ -39,6 +39,7 @@
 			/* CASE DELETE */ 
       if(isset($_GET["delete"])) {
         unlink("media/" . $_GET["delete"]);
+				header("Location: preview.php"); 
       }
 			
 			/* CASE DELETE ALL */
@@ -60,22 +61,27 @@
         echo "</div>"; //end video/image div
 				
 				// Download and delete button
-				echo "<p><input type='button' value='Download' onclick='window.open(\"download.php?file=" . $_GET["file"] . "\", \"_blank\");'> ";
+				echo "<p>" . $_GET["file"] . " "; 
+				echo "<input type='button' value='Download' onclick='window.open(\"download.php?file=" . $_GET["file"] . "\", \"_blank\");'> ";
         echo "<input type='button' value='Delete' onclick='window.location=\"preview.php?delete=" . $_GET["file"] . "\";'></p>";
       }
 			
 			/* List all recorded files */ 
 			
-			echo "<h1>Files</h1>"; 
+			echo "<h1>All files</h1>"; 
 		
 			// Go through all files, get their names, link and list them
       $files = scandir("media");
       if(count($files) == 2) echo "<p>No videos/images saved</p>";
       else {
         foreach($files as $file) {
-          if(($file != '.') && ($file != '..')) {
+          if(($file != '.') && ($file != '..')) 
+					{
             $fsz = round ((filesize("media/" . $file)) / (1024 * 1024));
-            echo "<p><a href='preview.php?file=$file'>$file</a> ($fsz MB)</p>";
+            echo "<p><a href='preview.php?file=$file'>$file</a> ($fsz MB) ";
+						echo "<input type='button' value='Download' onclick='window.open(\"download.php?file=" . $_GET["file"] . "\", \"_blank\");'> "; 
+						echo "<input type='button' value='Delete' onclick='window.location=\"preview.php?delete=" . $_GET["file"] . "\";'></p>";
+						
           }
         }
 				//delete all button

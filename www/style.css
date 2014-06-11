@@ -35,17 +35,68 @@
 	width: 100%; 
 }
 
+#videoRecording
+{
+	width: 100%; 
+	height: 22px; 
+	background-color: green; 
+	text-align: center; 
+	margin-top: 0px;
+	margin-bottom: 0px; 
+	padding-top:0px; 
+	padding-bottom:0px; 
+	
+}
+
+#videoWillBeStored
+{
+	width: 100%; 
+	height: 22px; 
+	background-color: red; 
+	text-align: center; 
+	margin-top: 0px;
+	margin-bottom: 5px; 
+	padding-top:0px; 
+	padding-bottom:0px; 
+}
+
+
+
 
 #bigButtons
 {
 	text-align: center; 
 }
 
+.bigButtonDiv
+{
+	width: 25%; 
+	height: 100%; 
+	float: left; 
+	text-align: center; 
+
+}
+
+.smallButton
+{
+	width:100%; 
+	height: 40px; 
+	color:black; 
+	font-size: 25px; 
+}
+.mediumButton
+{
+	width:100%; 
+	height: 60px; 
+	color:black; 
+	font-size: 25px; 
+
+}
 
 .bigButton
 {
-	width:24%; 
-	height: 100px; 
+	width:100%; 
+	height: 120px; 
 	color:black; 
 	font-size: 25px; 
 

@@ -96,7 +96,7 @@ def set_process_id(pid_file):
 		
 		
 def main(): 
-	
+	print "controller active"
 	# empty ram disk - I hope no kids are looking at this. You should not do this. Also don't run with scissors. 
 	os.system("sudo rm " + ram_location + "*") # prints error if non-empty - FIXME
 	
@@ -107,10 +107,14 @@ def main():
 	motion_counter = 0
 	
 	# clear pipe
-	fifo = os.open(motion_fifo, os.O_RDONLY|os.O_NONBLOCK)
-	fifo_content = os.read(fifo, 100)
-	os.close(fifo)
-	
+	try: 
+		fifo = os.open(motion_fifo, os.O_RDONLY|os.O_NONBLOCK)
+		fifo_content = os.read(fifo, 100)
+		os.close(fifo)
+		print "pipe cleaned"
+	except: 
+		print "pipe clean"	
+
 	# Yes, for ever and ever without stopping (ever)
 	while True: 
 		# Leave some processing time for others
@@ -144,12 +148,18 @@ def main():
 						with open(status_file, 'w') as f:
 							f.write("storing")
 					# 'ca 0' is sent if motion stopped, change state to no motion
-					if fifo_line == "ca 0": 
+					elif fifo_line == "ca 0": 
 						if debug: 
 							print "motion stopped" + str(current_video_length)
 						motion_active = False
 						with open(status_file, 'w') as f: 
 							f.write("removing")
+					elif fifo_line == "": 
+						pass
+					elif fifo_line == "motion": 
+						print "motion frame at " + str(current_video_length)
+					else: 
+						print "Undefined command in pipe"
 		except:
 			print "pipe wasn't ready - replace with socket in case of spare time"
 
@@ -163,7 +173,7 @@ def main():
 			# reset all counters and start new video
 			motion_counter = 0	
 			current_video_length = 0
-			motion_active = False # for now, change activation method to motion frames
+			#motion_active = False # for now, change activation method to motion frames
 			if debug: 
 				print "Starting new video"
 			start_video()

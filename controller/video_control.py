@@ -7,17 +7,38 @@
 import os
 import time
 from threading import Thread
+import ConfigParser
 
-debug = True
 
-sleep_interval = 0.2 # in seconds
-motion_threshold = 1.0 # approx seconds of motion in video
-video_length = 30 # in seconds
-mjpeg_fifo = "/var/www/FIFO"
-motion_fifo = "/var/www/FIFO2"
-ram_location = "/var/www/ram_media/"
-storage_location = "/var/www/media/"
-status_file = "/var/www/status_mjpeg.txt"
+
+
+# Parse config file
+config = ConfigParser.ConfigParser()
+cur_path = os.path.dirname(__file__)
+if cur_path == "": 
+	cur_path = "."
+print cur_path + "/video_control_config.txt"
+config.read(cur_path + "/video_control_config.txt")
+
+print config.sections()
+
+debug = bool(config.get("vSettings", "debug"))
+
+sleep_interval = float(config.get("vSettings", "sleep_interval")) # in seconds
+motion_threshold = float(config.get("vSettings", "motion_threshold")) # approx seconds of motion in video
+video_length = float(config.get("vSettings", "video_length")) # in seconds
+
+mjpeg_fifo = str(config.get("vSettings", "mjpeg_fifo"))
+motion_fifo = str(config.get("vSettings", "motion_fifo"))
+ram_location = str(config.get("vSettings", "ram_location"))
+storage_location = str(config.get("vSettings", "storage_location"))
+status_file = str(config.get("vSettings", "status_file"))
+
+
+
+
+
+
 
 
 
@@ -30,7 +51,7 @@ def process_file(file_name):
 		mp4_boxing(file_name)
 	else:
 		if debug: 
-			print "File wasn't deemed worthy - we follow the Spartan way. To /dev/null it goes"
+			print "last video was not interesting; it goes to /dev/null"
 		remove_h264(file_name)
 
 
@@ -160,7 +181,7 @@ def main():
 					# 'ca 0' is sent if motion stopped, change state to no motion
 					elif fifo_line == "ca 0": 
 						if debug: 
-							print "motion stopped" + str(current_video_length)
+							print "motion stopped at " + str(current_video_length)
 						motion_active = False
 						with open(status_file, 'w') as f: 
 							f.write("removing")

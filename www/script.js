@@ -92,7 +92,6 @@ ajax_status.onreadystatechange = function() {
 			document.getElementById("videoRecording").style.cssText="background-color: white"; 
 			document.getElementById("videoWillBeStored").innerHTML = "this part is going not going to be stored"; 
 			document.getElementById("videoWillBeStored").style.cssText= "background-color: white"; 			
-			
     }
     else if(ajax_status.responseText == "storing") 
 		{
@@ -100,6 +99,8 @@ ajax_status.onreadystatechange = function() {
 			document.getElementById("videoRecording").style.cssText= "background-color: green"; 
 			document.getElementById("videoWillBeStored").innerHTML = "this part is going to be stored"; 
 			document.getElementById("videoWillBeStored").style.cssText= "background-color: green"; 
+			document.getElementById("recordingButtonDiv").innerHTML = '<button class="bigButton" onclick="stopRecording()">stop\nrecording</button>'; 
+
 		}
 		else if(ajax_status.responseText == "removing")
 		{
@@ -107,6 +108,7 @@ ajax_status.onreadystatechange = function() {
 			document.getElementById("videoRecording").style.cssText= "background-color: green"; 
 			document.getElementById("videoWillBeStored").innerHTML = "this part is going not going to be stored"; 
 			document.getElementById("videoWillBeStored").style.cssText= "background-color: red"; 
+			document.getElementById("recordingButtonDiv").innerHTML = '<button class="bigButton" onclick="startRecording()" >Record</button>'; 
 		}
     else if(ajax_status.responseText.substr(0,5) == "Error") alert("Error in RaspiMJPEG: " + ajax_status.responseText.substr(7) + "\nRestart RaspiMJPEG (./RPi_Cam_Web_Interface_Installer.sh start) or the whole RPi.");
     
@@ -131,15 +133,17 @@ function splitSettingsDiv()
 
 function startRecording()
 {
+	// send signal to start recording to video control script
+	send_cmd_video_control("ca 1"); 
 	document.getElementById("recordingButtonDiv").innerHTML = '<button class="bigButton" onclick="stopRecording()">stop\nrecording</button>'; 
-	// send signal to start recording
-
+	
 }
 
 function stopRecording()
 {
+	// send signal to stop recording to video control script
+	send_cmd_video_control("ca 0"); 
 	document.getElementById("recordingButtonDiv").innerHTML = '<button class="bigButton" onclick="startRecording()" >Record</button>'; 
-	// send signal to stop recording
 
 }
 
@@ -180,7 +184,14 @@ else {
 */
 function send_cmd (cmd) {
 	// Because Javacript does not like changing server files too much, this is done with php
-  ajax_cmd.open("GET","cmd_pipe.php?cmd=" + cmd,true);
+  ajax_cmd.open("GET","raspimjpeg_pipe.php?cmd=" + cmd,true);
+  ajax_cmd.send();
+}
+
+// Communication with video control script
+function send_cmd_video_control (cmd) {
+	// Because Javacript does not like changing server files too much, this is done with php
+  ajax_cmd.open("GET","video_control_pipe.php?cmd=" + cmd,true);
   ajax_cmd.send();
 }
 

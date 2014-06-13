@@ -67,13 +67,23 @@ def mp4_boxing(file_name):
 def process_video(motion_counter): 
 	# give it sometime to be completed
 	time.sleep(5)
+	video_length = 30 #in seconds
 	file_name = get_last_file()
 	if file_name is None: # first video will be ignored
 		return 
-	if motion_counter > motion_threshold: 
+	if motion_counter > motion_threshold:
+		#(hopefully) temporary fix for dark video, if file too small it's noise 
+		file_size = os.path.getsize(ram_location + file_name) / 1024.0  /1024.0 #MB
 		if debug: 
-			print "converting to mp4 and storing"
-		mp4_boxing(file_name)
+			print "video file is " + str(file_size) + "MB" 
+		if file_size < video_length * 0.2:
+			if debug: 
+				print "file too small - probably no light left" 
+			remove_h264(file_name)
+		else: 
+			if debug: 
+				print "converting to mp4 and storing"
+			mp4_boxing(file_name)
 	else: 
 		if debug: 
 			print "video wasn't deemed worthy. It will be discarded. Thrown into the /dev/null"

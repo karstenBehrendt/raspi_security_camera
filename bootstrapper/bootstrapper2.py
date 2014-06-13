@@ -5,20 +5,28 @@
 
 
 import bootstrapping_functions as bf
+import os
 
 import time
-sleep_interval = 5
+sleep_interval = 10
 
 def main(): 
-	bf.set_process_id(".b2id")	
+	cur_path = os.path.dirname(__file__)
+	if cur_path == "": 
+		cur_path = "."
+
+	bf.set_process_id(cur_path + "/.b2id")	
 	time.sleep(sleep_interval)
-	pid = bf.get_process_id(".bid")
+	pid = bf.get_process_id(cur_path + "/.bid")
+	
+	print("bootstrap2 up and running")
 	
 	while True: 
 		time.sleep(sleep_interval)
-		print("bootstrap2 up and running")
+
 		# TODO make script somewhat smarter than rebooting
 		if not bf.check_if_process_running(pid): 
+			print "CRITICAL: Second bootstrap script could not find first bootstrap script"
 			bf.reboot()
 
 

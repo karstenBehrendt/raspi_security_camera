@@ -12,7 +12,7 @@ import bootstrapping_functions as bf
 
 debug = True
 
-sleep_interval = 5
+sleep_interval = 10
 
 # Just because I don't trust these scripts yet
 daily_reboot = True
@@ -45,22 +45,75 @@ def check_daily_reboot():
 	
 # Checking on all import webcam processes and second bootstrapper
 def main():
-	bf.set_process_id(".bid")
-	time.sleep(sleep_interval)
-	pid = bf.get_process_id(".b2id")
-	#pid = str(12345)
+	cur_path = os.path.dirname(__file__)
+	if cur_path == "": 
+		cur_path = "."
+	bf.set_process_id(cur_path + "/.bid")
+
+
+
+	### start all processes
+
+	# start second bootstrapper
+	os.system("python " + cur_path + "/bootstrapper2.py &")
+	# start webstream and motion 
+	os.system(cur_path + "/../security_cam_control.sh start &")
+	# start video_control
+	os.system("python " + cur_path + "/../controller/video_control.py &")
+
+	
+	
+	
+	
+	
+	# give second bootstrapper and video_control some time to initialize
+	time.sleep(10)
+
+
+	# process id bootstrapper 2
+	pid_bs2 = bf.get_process_id(cur_path + "/.b2id") 
+	
+	# process id video_control
+	pid_vc = bf.get_process_id(cur_path + "/../controller/.video_control_pid")
+ 
+	if debug: 
+		print "second bootstrapper pid: " + str(pid_bs2)
+		print "video control pid: " + str(pid_vc)
  
 	# run forever
 	while True: 		
 		time.sleep(sleep_interval)
 		
-		# FIXME just restart second bootstrapper
-		if not bf.check_if_process_running(pid): 
+		# currently bootstrapping fails if you kill all python processes
+		# If second bootstrapper is down: 
+		if not bf.check_if_process_running(pid_bs2): 
 			bf.reboot()
+		
+		# If video_control stopped - we should also check if it still sends out commands regularly
+		if not bf.check_if_process_running(pid_vc): 
+			print "CRITICAL: video control is not running"
+			#bf.reboot()
+		
+		# check on raspimjpeg
+		process = Popen(["pgrep", "raspimjpeg"], stdout=PIPE)
+		stdout = process.communicate()[0]
+		if stdout == "": 
+			print "CRITICAL: we are all going to die with raspi mjpeg"
+
+		# check on raspimjpeg
+		process = Popen(["pgrep", "motion"], stdout=PIPE)
+		stdout = process.communicate()[0]
+		if stdout == "": 
+			print "CRITICAL: we are all going to die with motion"
+		
+		
+		# TODO add another PIPE and check for stop messages, etc. here
+		
+		
 		
 		check_daily_reboot()
 		if debug: 
-			print("another time step")
+			print("bootstrapper: everything is up and running")
 		
 		
 

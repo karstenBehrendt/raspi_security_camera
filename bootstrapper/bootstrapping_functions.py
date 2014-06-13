@@ -7,7 +7,7 @@ def get_process_id(b_file):
 	f = open(b_file, "r")
 	pid = f.read()
 	pid = str(pid)
-	print(pid)
+	#print(pid)
 	return pid
 
 
@@ -19,7 +19,7 @@ def set_process_id(b_file):
 # in case of really bad errors, reboot
 def reboot(): 
 	print("rebooting system") 
-	process = Popen(['sudo', 'shutdown', 'now', '-r'], stdout=PIPE)
+	process = Popen(['sudo', 'reboot'], stdout=PIPE)
 	stdout, stderr = process.communicate()
 	if stdout is not None: 
 		print("stdout: " + stdout)

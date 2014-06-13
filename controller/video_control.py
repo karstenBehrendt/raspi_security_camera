@@ -35,13 +35,6 @@ storage_location = str(config.get("vSettings", "storage_location"))
 status_file = str(config.get("vSettings", "status_file"))
 
 
-
-
-
-
-
-
-
 def process_file(file_name): 
 	# Based on motion video_control, decide to keep or remove file. 
 	keep = False
@@ -60,10 +53,13 @@ def get_last_file():
 	files_in_ram.sort() # otherwise it appears to be random
 	num_files = len(files_in_ram)
 	if debug: 
-		print str(num_files) + " files in ram"
-		print files_in_ram
+		#print str(num_files) + " files in ram"
+		#print files_in_ram
+		pass
 	if(num_files >= 2): 
 		last_file = files_in_ram[-2] # take the last stored video
+		if debug: 
+			print last_file
 		return last_file
 	else: 
 		print "No file to be processed"
@@ -120,18 +116,23 @@ def stop_video():
 	
 # For easy checking if process is alive	
 def set_process_id(pid_file): 
+	cur_path = os.path.dirname(__file__)
+	if cur_path == "": 
+		cur_path = "."
 	pid = os.getpid()
-	with open(pid_file,"w") as myfile: 
+	print cur_path + "/" + pid_file
+	with open(cur_path + "/" + pid_file,"w") as myfile: 
 		myfile.write(str(pid))
 
 		
 		
 def main(): 
-	print "controller active"
+	set_process_id(".video_control_pid")
+	print "video control is up and running"
 	# empty ram disk - I hope no kids are looking at this. You should not do this. Also don't run with scissors. 
-	os.system("sudo rm " + ram_location + "*") # prints error if non-empty - FIXME
+	os.system("rm " + ram_location + "* -f") # prints error if non-empty - FIXME
 	
-	set_process_id("video_control_pid")
+	set_process_id(".video_control_pid")
 	
 	current_video_length = 0
 	motion_active = False

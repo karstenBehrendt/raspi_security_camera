@@ -141,7 +141,7 @@ def main():
 	# clear pipe
 	try: 
 		fifo = os.open(motion_fifo, os.O_RDONLY|os.O_NONBLOCK)
-		fifo_content = os.read(fifo, 100)
+		fifo_content = os.read(fifo, 1000)
 		os.close(fifo)
 		print "pipe cleaned"
 	except: 

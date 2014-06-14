@@ -67,6 +67,8 @@ case "$1" in
         sudo chown -R www-data:www-data /var/www
         sudo mknod /var/www/FIFO p
 				sudo mknod /var/www/FIFO2 p
+				sudo mknod /var/www/bootstrapper_pipe
+				sudo chmod 666 /var/www/bootstrapper_pipe
         sudo chmod 666 /var/www/FIFO
 				sudo chmod 666 /var/www/FIFO2
         sudo cp -r etc/apache2/sites-available/default /etc/apache2/sites-available/

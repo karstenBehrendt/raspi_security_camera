@@ -48,33 +48,26 @@ def main():
 	cur_path = os.path.dirname(__file__)
 	if cur_path == "": 
 		cur_path = "."
-	bf.set_process_id(cur_path + "/.bid")
-
-
+	bf.set_process_id(cur_path + "/bootstrapper/.bid")
 
 	### start all processes
 
 	# start second bootstrapper
-	os.system("python " + cur_path + "/bootstrapper2.py &")
+	os.system("python " + cur_path + "/bootstrapper/bootstrapper2.py &")
 	# start webstream and motion 
-	os.system(cur_path + "/../security_cam_control.sh start &")
+	os.system(cur_path + "/installer.sh start &")
 	# start video_control
-	os.system("python " + cur_path + "/../controller/video_control.py &")
+	os.system("python " + cur_path + "/controller/video_control.py &")
 
-	
-	
-	
-	
 	
 	# give second bootstrapper and video_control some time to initialize
 	time.sleep(10)
 
-
 	# process id bootstrapper 2
-	pid_bs2 = bf.get_process_id(cur_path + "/.b2id") 
+	pid_bs2 = bf.get_process_id(cur_path + "/bootstrapper/.b2id") 
 	
 	# process id video_control
-	pid_vc = bf.get_process_id(cur_path + "/../controller/.video_control_pid")
+	pid_vc = bf.get_process_id(cur_path + "/controller/.video_control_pid")
  
 	if debug: 
 		print "second bootstrapper pid: " + str(pid_bs2)

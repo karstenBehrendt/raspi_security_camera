@@ -8,9 +8,11 @@ Installation:
 
 1) Clone repo
 
-2) Set permissions (chmod u+x security_cam_control.sh)
+2) Set permissions (chmod u+x installer.sh)
 
-3) ./security_cam_control.sh install
+3) ./installer.sh install
+
+4) python security_camera.py (for manual start)
 
 Default passwords: 
 guest: guest, test: test, admin: admin

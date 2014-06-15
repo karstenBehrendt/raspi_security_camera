@@ -51,13 +51,6 @@ function set_roi() {
 */
 
 
-function start_camera()
-{
-	window.location="start.php";
-
-}
-
-
 
 
 //
@@ -151,7 +144,10 @@ ajax_status.onreadystatechange = function() {
 /*
 	Some 'dynamic html'
 */
-
+function start_camera()
+{
+	window.location="start.php";
+}
 
 function splitSettingsDiv()
 {
@@ -177,7 +173,12 @@ function stopRecording()
 
 }
 
-
+function status_popup()
+{
+	new_window = window.open("status.php", "Camera Status", 'height=250, width=300');
+	if(window.focus) {new_window.focus()}
+	return false; 
+}
 
 
 

@@ -19,10 +19,26 @@
 
 #heading
 {
+	//float: left; 
+	margin-right: 50px; 
 	text-align:center; 
 	font-family: "Arial"; 
 }
 
+#backDiv
+{
+	float:left; 
+	height: 50px; 
+	width: 50px; 
+	//border: solid 1px black; 
+}
+
+#backButton
+{
+	width:100%; 
+	//width:75px; 
+	//height:75px; 
+}
 
 
 #mjpeg_dest
@@ -60,7 +76,11 @@
 	padding-bottom:0px; 
 }
 
-
+#settingsDiv
+{
+	width:100%; 
+	border: solid 1px black; 
+}
 
 
 #bigButtons

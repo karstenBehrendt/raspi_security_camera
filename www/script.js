@@ -149,9 +149,9 @@ function start_camera()
 	window.location="start.php";
 }
 
-function splitSettingsDiv()
+function splitSettingsButtonDiv()
 {
-	document.getElementById("settingsDiv").innerHTML = "" + 
+	document.getElementById("settingsButtonDiv").innerHTML = "" + 
 	"<button class='smallButton' onclick=\"window.location = 'video_settings.html'\"> Camera </button> <br>" + 
 	"<button class='smallButton' onclick=\"window.location = 'motion_settings.html'\"> Motion </button><br>" +
 	"<button class='smallButton' onclick=\"window.location = 'storage_settings.html'\"> Storage </button>"; 

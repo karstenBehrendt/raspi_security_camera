@@ -53,7 +53,8 @@
 			{
 				echo "<div id=main>"; 
 				
-        echo "<div id=heading><h1>Recorded Videos</h1></div>";
+				echo "<div id=backDiv><a href=\"index.html\"><img src=\"back_button.png\" id=backButton></a></div>"; 
+				echo "<div id=heading></a><h1>Recorded Videos</h1></div>";
 				
 				echo "<div id=mjpeg_dest>"; 
         if(substr($_GET["file"], -3) == "jpg") echo "<img src='media/" . $_GET["file"] . "' width='640'>";

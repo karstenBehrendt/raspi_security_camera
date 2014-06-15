@@ -22,6 +22,7 @@ reboot_second = 15
 
 cam_active = True
 bs_fifo = "/var/www/bootstrapper_pipe"
+status_file = "/var/www/mjpeg_status.txt"
 
 cur_path = os.path.dirname(__file__)
 if cur_path == "": 
@@ -57,6 +58,9 @@ def reboot():
 		print("stdout: " + stdout)
 	if stderr is not None: 
 		print("stderr: " + stderr)
+	with open(status_file, "w") as f: 
+		f.write("off")
+	sys.exit()
 			
 			
 def check_if_process_running(pid): 
@@ -82,10 +86,10 @@ def turn_off_camera(pid_bs2, pid_vc):
 	# stop raspimjpeg
 	os.system("sudo pkill motion") # get sudo out of here
 	# tell web interface camera is off
-	with open("/var/www/status_mjpeg.txt", "w") as f: 
+	with open(status_file, "w") as f: 
 		f.write("off")
 		
-	exit()
+	sys.exit()
 	
 	
 def turn_on_camera(): 
@@ -127,6 +131,8 @@ def check_daily_reboot():
 		return
 	with open(bootstrap_log, "a") as myfile: 
 		myfile.write("Planned daily reboot: ", current_time)
+	with open(status_file, "w") as myfile: 
+		myfile.write("off")
 	reboot()
 	
 	

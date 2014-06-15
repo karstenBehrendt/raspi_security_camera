@@ -1,0 +1,4 @@
+#!/bin/bash
+sudo -u pi python /home/pi/raspi_security_cam/security_camera.py &
+
+

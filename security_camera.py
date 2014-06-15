@@ -178,7 +178,7 @@ def main():
 		
 		# TODO add another PIPE and check for stop messages, etc. here
 		
-		if True: 
+		try: 
 			fifo = os.open(bs_fifo, os.O_RDONLY|os.O_NONBLOCK)
 			fifo_content = os.read(fifo, 100)
 			os.close(fifo)
@@ -188,8 +188,8 @@ def main():
 					turn_off_camera(pid_bs2, pid_vc)
 				if fifo_line == "on": 
 					turn_on_camera()
-		#except:
-		#	pass
+		except Exception as e:
+			pass
 					
 		check_daily_reboot()
 		if debug: 

@@ -51,6 +51,13 @@ function set_roi() {
 */
 
 
+function start_camera()
+{
+	window.location="start.php";
+
+}
+
+
 
 
 //
@@ -88,27 +95,50 @@ ajax_status.onreadystatechange = function() {
 
     if(ajax_status.responseText == "off")
 		{
+			// status indicators
 			document.getElementById("videoRecording").innerHTML = "camera disabled"; 
 			document.getElementById("videoRecording").style.cssText="background-color: white"; 
 			document.getElementById("videoWillBeStored").innerHTML = "this part is going not going to be stored"; 
-			document.getElementById("videoWillBeStored").style.cssText= "background-color: white"; 			
+			document.getElementById("videoWillBeStored").style.cssText= "background-color: white"; 
+
+			// start button 
+			document.getElementById("restartButton").innerHTML = "Start"; 
+			document.getElementById("restartButton").setAttribute( "onClick", "javascript: start_camera();" )
+			
     }
     else if(ajax_status.responseText == "storing") 
 		{
+		
+			// status indicators
 			document.getElementById("videoRecording").innerHTML = "video stream active"; 
 			document.getElementById("videoRecording").style.cssText= "background-color: green"; 
 			document.getElementById("videoWillBeStored").innerHTML = "this part is going to be stored"; 
 			document.getElementById("videoWillBeStored").style.cssText= "background-color: green"; 
+			
+			// manual record button
 			document.getElementById("recordingButtonDiv").innerHTML = '<button class="bigButton" onclick="stopRecording()">stop\nrecording</button>'; 
+			
+			// stop button 
+			document.getElementById("restartButton").innerHTML = "Stop"; 
+			document.getElementById("restartButton").setAttribute( "onClick", "javascript: send_security_camera('off');" )
+			
 
 		}
 		else if(ajax_status.responseText == "removing")
 		{
+			// status indicators
 			document.getElementById("videoRecording").innerHTML = "video stream active"; 
 			document.getElementById("videoRecording").style.cssText= "background-color: green"; 
 			document.getElementById("videoWillBeStored").innerHTML = "this part is going not going to be stored"; 
 			document.getElementById("videoWillBeStored").style.cssText= "background-color: red"; 
+			
+			// manual record button
 			document.getElementById("recordingButtonDiv").innerHTML = '<button class="bigButton" onclick="startRecording()" >Record</button>'; 
+			
+			
+			// stop button 
+			document.getElementById("restartButton").innerHTML = "Stop"; 
+			document.getElementById("restartButton").setAttribute( "onClick", "javascript: send_security_camera('off');" )
 		}
     else if(ajax_status.responseText.substr(0,5) == "Error") alert("Error in RaspiMJPEG: " + ajax_status.responseText.substr(7) + "\nRestart RaspiMJPEG (./RPi_Cam_Web_Interface_Installer.sh start) or the whole RPi.");
     
@@ -195,17 +225,25 @@ function send_cmd_video_control (cmd) {
   ajax_cmd.send();
 }
 
+function send_security_camera(cmd) {
+	// Because Javacript does not like changing server files too much, this is done with php
+  ajax_cmd.open("GET","security_camera_pipe.php?cmd=" + cmd,true);
+  ajax_cmd.send();
+}
+
+
 //
 // main - started by body onload
 //
 function init() {
 
+  // status
+  reload_ajax("");
   // mjpeg
   mjpeg_img = document.getElementById("mjpeg_dest");
   mjpeg_img.onload = reload_img;
   mjpeg_img.onerror = error_img;
   reload_img();
-  // status
-  reload_ajax("");
+
 
 }

@@ -103,7 +103,7 @@ def process_video(motion_counter):
 			mp4_boxing(file_name)
 	else: 
 		if debug: 
-			print "video wasn't deemed worthy. It will be discarded. Thrown into the /dev/null"
+			print "video wasn't deemed worthy. It will be discarded. Thrown into /dev/null"
 		remove_h264(file_name)	
 		
 	

@@ -76,6 +76,7 @@ case "$1" in
         sudo cp etc/apache2/conf.d/other-vhosts-access-log /etc/apache2/conf.d/other-vhosts-access-log
         sudo chmod 644 /etc/apache2/conf.d/other-vhosts-access-log
 				sudo bash -c "echo 'www-data ALL = NOPASSWD: /sbin/reboot' >> /etc/sudoers"
+				sudo bash -c "echo 'www-data ALL = NOPASSWD: /home/pi/raspi_security_cam/start_bash' >> /etc/sudoers"
 
         sudo cp -r bin/raspimjpeg /opt/vc/bin/
         sudo chmod 755 /opt/vc/bin/raspimjpeg

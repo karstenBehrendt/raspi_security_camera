@@ -65,6 +65,8 @@ case "$1" in
 				sudo chmod 644 /var/www/.htaccess /var/www/.htpasswd
         sudo mkdir -p /var/www/media
         sudo chown -R www-data:www-data /var/www
+				sudo mkdir /var/www/temp_videos
+				sudo chmod pi /var/www/temp_videos
         sudo mknod /var/www/FIFO p
 				sudo mknod /var/www/FIFO2 p
 				sudo mknod /var/www/bootstrapper_pipe
@@ -124,7 +126,7 @@ case "$1" in
         echo "Stopped"
         ;;
 	update)
-				echo "update wants to be implemented"
+				echo "update function wants to be implemented"
 				;;
 	*)
 				echo "Options are: "

@@ -77,6 +77,9 @@ def turn_off_camera(pid_bs2, pid_vc):
 	camera_active = False
 	# stop bootstrapper
 	os.system("kill " + str(pid_bs2))
+	# tell web interface camera is off
+	with open(status_file, "w") as f: 
+		f.write("off")
 	# stop video control
 	os.system("kill " + str(pid_vc))
 	# stop recording
@@ -85,9 +88,6 @@ def turn_off_camera(pid_bs2, pid_vc):
 	os.system(cur_path + "/installer.sh stop")
 	# stop raspimjpeg
 	os.system("sudo pkill motion") # get sudo out of here
-	# tell web interface camera is off
-	with open(status_file, "w") as f: 
-		f.write("off")
 		
 	sys.exit()
 	

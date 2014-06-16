@@ -46,6 +46,7 @@
       if(isset($_GET["delete_all"])) {
         $files = scandir("media");
         foreach($files as $file) unlink("media/$file");
+				header("Location: preview.php"); 
       }
 			
 			/* CASE SINGLE FILE - MAIN VIEW */

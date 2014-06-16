@@ -8,7 +8,7 @@ import os
 import time
 from threading import Thread
 import ConfigParser
-
+import math
 
 
 
@@ -26,26 +26,16 @@ debug = bool(config.get("vSettings", "debug"))
 
 sleep_interval = float(config.get("vSettings", "sleep_interval")) # in seconds
 motion_threshold = float(config.get("vSettings", "motion_threshold")) # approx seconds of motion in video
-video_length = float(config.get("vSettings", "video_length")) # in seconds
+max_video_length = float(config.get("vSettings", "video_length")) # in seconds
 
 mjpeg_fifo = str(config.get("vSettings", "mjpeg_fifo"))
 motion_fifo = str(config.get("vSettings", "motion_fifo"))
 ram_location = str(config.get("vSettings", "ram_location"))
 storage_location = str(config.get("vSettings", "storage_location"))
+temp_storage_location = str(config.get("vSettings", "temp_storage_location"))
 status_file = str(config.get("vSettings", "status_file"))
 
 
-def process_file(file_name): 
-	# Based on motion video_control, decide to keep or remove file. 
-	keep = False
-	if keep: 
-		if debug: 
-			print "File is being converted and moved"
-		mp4_boxing(file_name)
-	else:
-		if debug: 
-			print "last video was not interesting; it goes to /dev/null"
-		remove_h264(file_name)
 
 
 def get_last_file(): 
@@ -68,20 +58,90 @@ def get_last_file():
 def remove_h264(file_name): 
 	os.remove(ram_location + file_name)
 
-def mp4_boxing(file_name): 
-	# calls converter and copy to storage
-	if debug: 
-		print "MP4Box -add " + ram_location + file_name + " " + storage_location + file_name[:-5] + ".mp4"
-	os.system("MP4Box -add " + ram_location + file_name + " " + storage_location + file_name[:-5] + ".mp4")
-	if debug: 
-		pass
-		#print "Removing " + file_name
+def mp4_boxing(file_name, start, end): 
+	# Store full video, only writing to disk once. 
+	if start == 0 and end == "end": 
+		if debug: 
+			print "MP4Box -add " + ram_location + file_name + " " + storage_location + file_name[:-5] + ".mp4"
+		os.system("MP4Box -add " + ram_location + file_name + " " + storage_location + file_name[:-5] + ".mp4")
+		if debug: 
+			print "Removing " + file_name
+	
+	# Only store parts of video
+	else: 	
+		if debug: 
+			print "MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4"
+		# Convert to MP4
+		os.system("MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4")	
+				
+		if debug: 
+			print "Removing " + file_name
+	
+	# You could mv / change file names here
+	
+	
+	# In both cases remove original video file
 	remove_h264(file_name)	
 	
 	
+# Checks what to do with the video and delegates tasks
+# input: list of motion events (starts and stops)
+def process_video(motion): 
+	# give the video some time to be completely written to temporary location (maybe memory)
+	time.sleep(5)
+	
+	if debug: 
+		print motion
+	
+	file_name = get_last_file()
+	if file_name is None: # first video will be ignored
+		return
+	
+	# current split method: always output one file. 
+	# Simple case: motions starts and stops - just cut video
+	# Other case: Split using first start and last end. 
+	# How much memory do I need to have it all done without using the hard drive/SD card?
+	
+	if not motion: 
+		if debug: 
+			print "video wasn't deemed worthy. It will be discarded. Thrown into /dev/null"
+		remove_h264(file_name)			
+		return
+	
+	# MP4Box cuts of end automatically if end is too big
+	num_motions = len(motion)
+	start = 0 if (motion[0][0] - 2) < 0 else int( math.floor( motion[0][0] -2 + 0.5) )
+	end = "end" if (motion[num_motions - 1][1] + 2 > max_video_length) else int( math.floor( motion[num_motions - 1][1] + 2 + 0.5) )
+
+	# sum over all detected motions
+	motion_time = 0
+	for m in motion: 
+		motion_time += m[1] - m[0]
+	
+	# time from first motion to last motion in seconds
+	if end == "end": 
+		video_length = max_video_length - start
+	else: 
+		video_length = end - start 
+	
+	
+	if motion_time > motion_threshold:
+		# (hopefully temporary) fix for dark video, if file too small it's noise 
+		file_size = os.path.getsize(ram_location + file_name) / 1024.0  /1024.0 #MB
+		if debug: 
+			print "video file is " + str(file_size) + "MB" 
+		if file_size < video_length * 0.2:
+			if debug: 
+				print "file too small - probably no light left" 
+			remove_h264(file_name)
+		else: 
+			if debug: 
+				print "converting to mp4, splitting and storing"
+			mp4_boxing(file_name, start, end)
 
 	
-def process_video(motion_counter): 
+	
+def process_video_old(motion_counter): 
 	# give it sometime to be completed
 	time.sleep(5)
 	video_length = 30 #in seconds
@@ -136,7 +196,8 @@ def main():
 	
 	current_video_length = 0
 	motion_active = False
-	motion_counter = 0
+	detected_motion = [] # a list of current motions
+	current_motion = [0,0]
 	
 	# clear pipe
 	try: 
@@ -158,8 +219,8 @@ def main():
 			#print str(current_video_length) + " motion active: " + str(motion_active)
 			pass
 
-		# Check for motion information in pipe
-		try:
+		# Check for motion information in pipe, looks a little bulky...
+		try: #in case file is opened - it happens, eventhough not too open
 			fifo = os.open(motion_fifo, os.O_RDONLY|os.O_NONBLOCK)
 			fifo_content = os.read(fifo, 100)
 			os.close(fifo)
@@ -176,13 +237,17 @@ def main():
 						if debug:
 							print "motion detected at " + str(current_video_length)
 						motion_active = True
-						motion_counter +=sleep_interval
+						#motion_counter +=sleep_interval
+						current_motion[0] = current_video_length
 						with open(status_file, 'w') as f:
 							f.write("storing")
 					# 'ca 0' is sent if motion stopped, change state to no motion
 					elif fifo_line == "ca 0": 
 						if debug: 
 							print "motion stopped at " + str(current_video_length)
+						current_motion[1] = current_video_length
+						detected_motion.append(current_motion)
+						current_motion = [0,0]
 						motion_active = False
 						with open(status_file, 'w') as f: 
 							f.write("removing")
@@ -197,13 +262,19 @@ def main():
 
 		
 		# check if time seconds # video interval = 0
-		if current_video_length >= video_length: 
+		if current_video_length >= max_video_length: 
+			if motion_active: 
+				current_motion[1] = current_video_length
+				detected_motion.append(current_motion)
 			stop_video()
 			# convert and store video or delete it (own thread, so it does not delay this process)
-			video_conversion_thread = Thread(target = process_video, args=(motion_counter,))
+			video_conversion_thread = Thread(target = process_video, args=(detected_motion,))
 			video_conversion_thread.start()
 			# reset all counters and start new video
-			motion_counter = 0	
+			detected_motion = []
+			current_motion = [0,0]
+			if motion_active: 
+				current_motion[0] = 0
 			current_video_length = 0
 			#motion_active = False # for now, change activation method to motion frames
 			if debug: 

@@ -32,7 +32,6 @@ mjpeg_fifo = str(config.get("vSettings", "mjpeg_fifo"))
 motion_fifo = str(config.get("vSettings", "motion_fifo"))
 ram_location = str(config.get("vSettings", "ram_location"))
 storage_location = str(config.get("vSettings", "storage_location"))
-temp_storage_location = str(config.get("vSettings", "temp_storage_location"))
 status_file = str(config.get("vSettings", "status_file"))
 
 
@@ -130,7 +129,7 @@ def process_video(motion):
 		file_size = os.path.getsize(ram_location + file_name) / 1024.0  /1024.0 #MB
 		if debug: 
 			print "video file is " + str(file_size) + "MB" 
-		if file_size < video_length * 0.2:
+		if file_size < video_length * 0.6:
 			if debug: 
 				print "file too small - probably no light left" 
 			remove_h264(file_name)
@@ -198,6 +197,10 @@ def main():
 	motion_active = False
 	detected_motion = [] # a list of current motions
 	current_motion = [0,0]
+
+	# create ram directory
+	os.system("mkdir " + ram_location)
+
 	
 	# clear pipe
 	try: 
@@ -258,7 +261,7 @@ def main():
 					else: 
 						print "Undefined command in pipe"
 		except:
-			print "pipe wasn't ready - replace with socket in case of spare time"
+			print "motion pipe wasn't ready"
 
 		
 		# check if time seconds # video interval = 0

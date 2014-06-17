@@ -45,15 +45,17 @@ case "$1" in
         ;;
 
   autostart_yes)
-        sudo cp -r etc/rc_local_run/rc.local /etc/
-        sudo chmod 755 /etc/rc.local
-        echo "Changed autostart"
+				sudo bash -c "sudo mount -o size=250M -t tmpfs none /var/www/ram_location/' >> /etc/rc.local"
+				sudo bash -c "sudo chown pi /var/www/ram_location' >> /etc/rc.local"
+				sudo bash -c "sudo -u pi python /home/pi/raspi_security_cam/security_camera.py &' >> /etc/rc.local"
+        echo "autostart is active"
         ;;
 
   autostart_no)
-        sudo cp -r  etc/rc_local_std/rc.local /etc/
-        sudo chmod 755 /etc/rc.local
-        echo "Changed autostart"
+				echo "to remove this tool from the autostart: "
+				echo "remove a few lines from /etc/rc.local"
+				echo "good luck"
+        echo "Sorry. "
         ;;
 
   install)
@@ -117,7 +119,7 @@ case "$1" in
         shopt -u nullglob
 
         sudo mkdir -p /dev/shm/mjpeg
-        sudo raspimjpeg -ic $image -vc $video > /dev/null &
+        sudo raspimjpeg -ic $image -vc $video; > /dev/null &
         echo "Started"
         ;;
 

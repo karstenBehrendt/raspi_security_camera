@@ -6,7 +6,7 @@ motion_threshold = 1.0
 video_length = 30
 mjpeg_fifo = /var/www/FIFO
 motion_fifo = /var/www/FIFO2
-ram_location = /run/shm/videos/
+ram_location = /var/www/ram_location/
 storage_location = /var/www/media/
 status_file = /var/www/status_mjpeg.txt
 

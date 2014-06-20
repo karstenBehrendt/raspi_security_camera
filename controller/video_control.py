@@ -6,7 +6,7 @@
 
 import os
 import time
-from threading import Thread
+import threading
 import ConfigParser
 import math
 
@@ -35,6 +35,34 @@ storage_location = str(config.get("vSettings", "storage_location"))
 status_file = str(config.get("vSettings", "status_file"))
 
 
+def system_call(sys_call): 
+	if debug: 
+		print "sys_call"
+	os.system(sys_call)
+
+
+# checks for active threads
+# if none is active and queue is not empty, starts a new one. 
+def process_queue(queue): 
+	if threading.active_count() != 1: 
+		print "number of active counts too hight: " + str(threading.active_count())
+		return queue # one thread is still boxing
+	
+	if not queue: 
+		return queue # queue is empty
+		
+	# if thread available and queue not empty: 
+	new_job = queue[0]
+	queue.pop(0)
+	
+	# Queue is just a simple list of system calls - TODO this can be done smarter
+	# start thread
+	boxing_thread = threading.Thread(target = system_call, args=(new_job,))
+	boxing_thread.start()
+	
+	return queue
+
+
 
 
 def get_last_file(): 
@@ -57,56 +85,53 @@ def get_last_file():
 def remove_h264(file_name): 
 	os.remove(ram_location + file_name)
 
+# returns list of system calls for boxing
 def mp4_boxing(file_name, start, end): 
+	system_calls = []
 	# Store full video, only writing to disk once. 
-	if start == 0 and end == "end": 
-		if debug: 
-			print "MP4Box -add " + ram_location + file_name + " " + storage_location + file_name[:-5] + ".mp4"
-		os.system("MP4Box -add " + ram_location + file_name + " " + storage_location + file_name[:-5] + ".mp4")
-		if debug: 
-			print "Removing " + file_name
-	
-	# Only store parts of video
-	else: 	
-		if debug: 
-			print "MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4"
+		
+	if debug: 
+		print "MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4"
 		# Convert to MP4
-		os.system("MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4")	
+	system_calls.append("MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4")	
 				
-		if debug: 
-			print "Removing " + file_name
+	if debug: 
+		print "Removing " + file_name
 	
 	# You could mv / change file names here
 	
-	
 	# In both cases remove original video file
-	remove_h264(file_name)	
-	
+	system_calls.append("rm " + ram_location + file_name + " -f")
+	return system_calls
+
+
 	
 # Checks what to do with the video and delegates tasks
 # input: list of motion events (starts and stops)
-def process_video(motion): 
+def enqueue_video(motion, queue): 
 	# give the video some time to be completely written to temporary location (maybe memory)
-	time.sleep(5)
+	# time.sleep(5) - TODO check if this was needed at any point
 	
 	if debug: 
 		print motion
 	
 	file_name = get_last_file()
-	if file_name is None: # first video will be ignored
-		return
+	if file_name is None: 
+		return queue
 	
 	# current split method: always output one file. 
 	# Simple case: motions starts and stops - just cut video
 	# Other case: Split using first start and last end. 
 	# How much memory do I need to have it all done without using the hard drive/SD card?
 	
+	# if no motion information is available, just remove current file
 	if not motion: 
 		if debug: 
 			print "video wasn't deemed worthy. It will be discarded. Thrown into /dev/null"
-		remove_h264(file_name)			
-		return
+		remove_h264(file_name) # can be done without queue			
+		return queue
 	
+	# get all parameters for boxing call
 	# MP4Box cuts of end automatically if end is too big
 	num_motions = len(motion)
 	start = 0 if (motion[0][0] - 2) < 0 else int( math.floor( motion[0][0] -2 + 0.5) )
@@ -129,6 +154,7 @@ def process_video(motion):
 		file_size = os.path.getsize(ram_location + file_name) / 1024.0  /1024.0 #MB
 		if debug: 
 			print "video file is " + str(file_size) + "MB" 
+		# FIXME - add fps factor to fix - this one works for 25fps
 		if file_size < video_length * 0.6:
 			if debug: 
 				print "file too small - probably no light left" 
@@ -136,8 +162,9 @@ def process_video(motion):
 		else: 
 			if debug: 
 				print "converting to mp4, splitting and storing"
-			mp4_boxing(file_name, start, end)
-
+			# adds new system calls to queue
+			queue.extend(	mp4_boxing(file_name, start, end) )
+	return queue
 	
 	
 def process_video_old(motion_counter): 
@@ -198,6 +225,8 @@ def main():
 	detected_motion = [] # a list of current motions
 	current_motion = [0,0]
 
+	queue = [] # videos to be processed
+	
 	# create ram directory
 	os.system("mkdir " + ram_location)
 
@@ -213,9 +242,12 @@ def main():
 
 	# Yes, for ever and ever without stopping (ever)
 	while True: 
+	
 		# Leave some processing time for others
 		time.sleep(sleep_interval)
 		current_video_length += sleep_interval
+		
+		
 		
 		# At some point, there was something I wanted to see...
 		if(debug): 
@@ -263,6 +295,11 @@ def main():
 		except:
 			print "motion pipe wasn't ready"
 
+			
+		# process open boxing jobs
+		if current_video_length % 2 == 0: 
+			queue = process_queue(queue)
+			
 		
 		# check if time seconds # video interval = 0
 		if current_video_length >= max_video_length: 
@@ -270,9 +307,10 @@ def main():
 				current_motion[1] = current_video_length
 				detected_motion.append(current_motion)
 			stop_video()
-			# convert and store video or delete it (own thread, so it does not delay this process)
-			video_conversion_thread = Thread(target = process_video, args=(detected_motion,))
-			video_conversion_thread.start()
+			
+			# convert and store video or delete it (own thread, in queue)
+			queue = enqueue_video(detected_motion, queue)
+			print "in queue: " + str(queue)
 			# reset all counters and start new video
 			detected_motion = []
 			current_motion = [0,0]

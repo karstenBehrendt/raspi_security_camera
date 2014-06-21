@@ -6,13 +6,19 @@ The special thing about this tool is that it works in real-time, stores videos i
 -------------------------------------------------------------------------------
 Installation: 
 
-1) Clone repo
+1) Go to home directory (cd ~) #user pi
 
-2) Set permissions (chmod u+x installer.sh)
+2) Clone repo (git clone https://github.com/karstenBehrendt/raspi_security_camera.git)
 
-3) ./installer.sh install
+3) cd ~/raspi_security_camera
 
-4) python security_camera.py (for manual start)
+4) Set permissions (chmod u+x installer.sh)
+
+5) ./installer.sh install
+
+6) python security_camera.py (for manual start)
+
+7) ./installer.sh autostart_yes #if you want it to start on reboot, for a long time
 
 Default passwords: 
 guest: guest, test: test, admin: admin

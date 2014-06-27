@@ -1,8 +1,8 @@
 #
+#	June 2014, Karsten Behrendt
 #
-#
-#
-#
+#	This is a prototype. The code is a mess. That is okay for a protoype. 
+# 
 
 import os
 import time
@@ -12,7 +12,7 @@ import math
 
 
 
-# Parse config file
+# Parse config file and store settings
 config = ConfigParser.ConfigParser()
 cur_path = os.path.dirname(__file__)
 if cur_path == "": 
@@ -35,6 +35,7 @@ storage_location = str(config.get("vSettings", "storage_location"))
 status_file = str(config.get("vSettings", "status_file"))
 
 
+# Calls system command
 def system_call(sys_call): 
 	if debug: 
 		print "sys_call " + str(sys_call) 
@@ -64,7 +65,7 @@ def process_queue(queue):
 
 
 
-
+# Checks the temporary storage location (probably ram drive) for the next file to be processed. 
 def get_last_file(): 
 	files_in_ram = [ f for f in os.listdir(ram_location) if os.path.isfile(os.path.join(ram_location,f)) ]
 	files_in_ram.sort() # otherwise it appears to be random
@@ -82,6 +83,7 @@ def get_last_file():
 		print "No file to be processed"
 		return None
 
+# removes a specified file
 def remove_h264(file_name): 
 	os.remove(ram_location + file_name)
 
@@ -176,41 +178,17 @@ def enqueue_video(motion, queue):
 			queue.extend(	mp4_boxing(file_name, start, end) )
 	return queue
 	
-# can be removed. 
-def process_video_old(motion_counter): 
-	# give it sometime to be completed
-	time.sleep(5)
-	video_length = 30 #in seconds
-	file_name = get_last_file()
-	if file_name is None: # first video will be ignored
-		return 
-	if motion_counter > motion_threshold:
-		#(hopefully) temporary fix for dark video, if file too small it's noise 
-		file_size = os.path.getsize(ram_location + file_name) / 1024.0  /1024.0 #MB
-		if debug: 
-			print "video file is " + str(file_size) + "MB" 
-		if file_size < video_length * 0.2:
-			if debug: 
-				print "file too small - probably no light left" 
-			remove_h264(file_name)
-		else: 
-			if debug: 
-				print "converting to mp4 and storing"
-			mp4_boxing(file_name)
-	else: 
-		if debug: 
-			print "video wasn't deemed worthy. It will be discarded. Thrown into /dev/null"
-		remove_h264(file_name)	
-		
 	
-	
+# Sends start video recording to raspimjpeg	
 def start_video(): 
 	os.system('echo "ca 1" > ' + mjpeg_fifo)
 	
+# Sends stop video recording to raspimjpeg
 def stop_video(): 
 	os.system('echo "ca 0" > ' +  mjpeg_fifo)
 	
-# For easy checking if process is alive	
+# For easy checking if process is alive
+# gets its own process id and stores it for the bootstrapper
 def set_process_id(pid_file): 
 	cur_path = os.path.dirname(__file__)
 	if cur_path == "": 
@@ -221,7 +199,10 @@ def set_process_id(pid_file):
 		myfile.write(str(pid))
 
 		
-		
+# The messy heart of the video control. 
+# It runs a loop continuously that checks for motion, which leads to video storage
+# Starts a new video every 30 seconds	
+# Should be factorized. 
 def main(): 
 	set_process_id(".video_control_pid")
 	print "video control is up and running"

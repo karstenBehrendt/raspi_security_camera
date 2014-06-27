@@ -20,6 +20,7 @@ reboot_minute = 15
 reboot_second = 15
 
 
+# Settings file would be better, also class based. 
 cam_active = True
 bs_fifo = "/var/www/bootstrapper_pipe"
 status_file = "/var/www/mjpeg_status.txt"
@@ -30,12 +31,12 @@ if cur_path == "":
 error_log = cur_path + "/error.log"
 
 
-	
+# Adds a message to the error log
 def add_to_log(error_msg): 
 	with open(error_log, 'a') as el: 
 		el.write( str(error_msg) + "\n")
 	
-	
+# Reads a process id from file for supervision
 def get_process_id(b_file): 
 	f = open(b_file, "r")
 	pid = f.read()
@@ -43,13 +44,13 @@ def get_process_id(b_file):
 	#print(pid)
 	return pid
 
-
+# Stores its process id to file, so it can be monitored easily
 def set_process_id(b_file): 
 	pid = os.getpid()
 	with open(b_file,"w") as myfile: 
 		myfile.write(str(pid))
 
-# in case of really bad errors, reboot
+# in case of errors, reboot
 def reboot(): 
 	print("rebooting system") 
 	process = Popen(['sudo', 'reboot'], stdout=PIPE)
@@ -62,7 +63,7 @@ def reboot():
 		f.write("off")
 	sys.exit()
 			
-			
+# As the name suggests..	
 def check_if_process_running(pid): 
 	try:
 		os.kill(int(pid), 0)
@@ -72,7 +73,6 @@ def check_if_process_running(pid):
 
 
 # turns off all processes and stops
-# motion is still running, but doesn't get any new images
 def turn_off_camera(pid_bs2, pid_vc): 
 	camera_active = False
 	# stop bootstrapper
@@ -91,7 +91,8 @@ def turn_off_camera(pid_bs2, pid_vc):
 		
 	sys.exit()
 	
-	
+
+# Starts all processes (bootstrapper, raspimjpeg, motion) and gets their process ids	
 def turn_on_camera(): 
 	camera_active = True
 	
@@ -118,7 +119,7 @@ def turn_on_camera():
 	return [pid_bs2, pid_vc]
 
 
-# Is there a downside to having the return between each step?
+# Is there a downside to having the return statements between each step?
 def check_daily_reboot(): 			
 	current_time = datetime.datetime.now()
 	if not daily_reboot:
@@ -136,7 +137,7 @@ def check_daily_reboot():
 	reboot()
 	
 	
-# Checking on all import webcam processes and second bootstrapper
+# Check on all important webcam processes and bootstrapper continuously
 def main():
 
 	set_process_id(cur_path + "/bootstrapper/.bid")
@@ -182,7 +183,9 @@ def main():
 			reboot()
 		
 		
-		# TODO add another PIPE and check for stop messages, etc. here
+		# Add more checks
+		# So to check if video_control still sends it signal every 30 seconds
+		# and that raspimjpeg still stores files.
 		
 		try: 
 			fifo = os.open(bs_fifo, os.O_RDONLY|os.O_NONBLOCK)

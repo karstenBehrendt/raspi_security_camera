@@ -1,7 +1,6 @@
 #
-# bootstrapper and bootstrapper2 supervise each other
-#	bootstrapper checks on all webcam processes
-#
+# this bootstrapper and the start script check on each other if they are still alive. 
+# That is all this script does.
 
 
 
@@ -69,7 +68,7 @@ def main():
 		if debug: 
 			print "bootstrapper up and running"
 		
-		# TODO make script somewhat smarter than rebooting
+		# reboot on error, this may be done smarter
 		if not check_if_process_running(pid): 
 			print "CRITICAL: Second bootstrap script could not find first bootstrap script"
 			reboot()

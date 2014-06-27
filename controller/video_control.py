@@ -37,7 +37,7 @@ status_file = str(config.get("vSettings", "status_file"))
 
 def system_call(sys_call): 
 	if debug: 
-		print "sys_call"
+		print "sys_call " + str(sys_call) 
 	os.system(sys_call)
 
 
@@ -45,7 +45,7 @@ def system_call(sys_call):
 # if none is active and queue is not empty, starts a new one. 
 def process_queue(queue): 
 	if threading.active_count() != 1: 
-		print "number of active counts too hight: " + str(threading.active_count())
+		#print "number of active counts too hight: " + str(threading.active_count())
 		return queue # one thread is still boxing
 	
 	if not queue: 
@@ -73,8 +73,8 @@ def get_last_file():
 		#print str(num_files) + " files in ram"
 		#print files_in_ram
 		pass
-	if(num_files >= 2): 
-		last_file = files_in_ram[-2] # take the last stored video
+	if(num_files >= 1): 
+		last_file = files_in_ram[-1] # take the last stored video
 		if debug: 
 			print last_file
 		return last_file
@@ -93,8 +93,17 @@ def mp4_boxing(file_name, start, end):
 	if debug: 
 		print "MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4"
 		# Convert to MP4
-	system_calls.append("MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4")	
-				
+	# Current bug here: 
+	# Videos that should be split from someTime to end are stored completely. 
+	# The new gpac MP4Box is going to support splitting till end. 
+	# The current arm release does not do this. Until then - this bug is most likely going to stay. 
+	# MP4Box -add file -splitx 0:end outfile actucally works, just not when specifying start != 0
+	# bug is fixed in MP4Box, waiting for release
+	if not end == 'end': 
+		system_calls.append("MP4Box -add " + ram_location + file_name + " " + "-splitx " + str(start) + ":" + str(end) + " " + storage_location + file_name[:-5] + ".mp4")	
+	else: 
+		system_calls.append("MP4Box -add " + ram_location + file_name + " " + storage_location + file_name[:-5] + ".mp4")
+	
 	if debug: 
 		print "Removing " + file_name
 	
@@ -113,7 +122,7 @@ def enqueue_video(motion, queue):
 	# time.sleep(5) - TODO check if this was needed at any point
 	
 	if debug: 
-		print motion
+		print "motion: " + str(motion)
 	
 	file_name = get_last_file()
 	if file_name is None: 
@@ -126,8 +135,9 @@ def enqueue_video(motion, queue):
 	
 	# if no motion information is available, just remove current file
 	if not motion: 
-		if debug: 
-			print "video wasn't deemed worthy. It will be discarded. Thrown into /dev/null"
+		if debug:
+			pass 
+			#print "video wasn't deemed worthy. It will be discarded. Thrown into /dev/null"
 		remove_h264(file_name) # can be done without queue			
 		return queue
 	
@@ -166,7 +176,7 @@ def enqueue_video(motion, queue):
 			queue.extend(	mp4_boxing(file_name, start, end) )
 	return queue
 	
-	
+# can be removed. 
 def process_video_old(motion_counter): 
 	# give it sometime to be completed
 	time.sleep(5)
@@ -240,6 +250,8 @@ def main():
 	except: 
 		print "pipe clean"	
 
+	print "Video recording started"
+	start_video()
 	# Yes, for ever and ever without stopping (ever)
 	while True: 
 	
@@ -293,11 +305,12 @@ def main():
 					else: 
 						print "Undefined command in pipe"
 		except:
-			print "motion pipe wasn't ready"
+			pass
+			#print "motion pipe wasn't ready"
 
 			
 		# process open boxing jobs
-		if current_video_length % 2 == 0: 
+		if current_video_length > 3: # give it some time to finish 
 			queue = process_queue(queue)
 			
 		
@@ -318,7 +331,8 @@ def main():
 				current_motion[0] = 0
 			current_video_length = 0
 			#motion_active = False # for now, change activation method to motion frames
-			if debug: 
+			if debug:
+				print "----------------------------------------------------" 
 				print "Starting new video"
 			start_video()
 			

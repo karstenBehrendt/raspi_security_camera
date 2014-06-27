@@ -81,8 +81,8 @@
 					{
             $fsz = round ((filesize("media/" . $file)) / (1024 * 1024));
             echo "<p><a href='preview.php?file=$file'>$file</a> ($fsz MB) ";
-						echo "<input type='button' value='Download' onclick='window.open(\"download.php?file=" . $_GET["file"] . "\", \"_blank\");'> "; 
-						echo "<input type='button' value='Delete' onclick='window.location=\"preview.php?delete=" . $_GET["file"] . "\";'></p>";
+						echo "<input type='button' value='Download' onclick='window.open(\"download.php?file=" . $file . "\", \"_blank\");'> "; 
+						echo "<input type='button' value='Delete' onclick='window.location=\"preview.php?delete=" . $file . "\";'></p>\n";
 						
           }
         }

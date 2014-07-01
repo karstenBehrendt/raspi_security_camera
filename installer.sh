@@ -64,14 +64,16 @@ case "$1" in
         sudo apt-get install -y apache2 php5 libapache2-mod-php5 gpac motion
 
         sudo cp -r www/* /var/www/
+				sudo cp www/.htaccess /var/www/
+				sudo cp www/.htpasswd /var/www/
 				sudo chmod 644 /var/www/.htaccess /var/www/.htpasswd
         sudo mkdir -p /var/www/media
         sudo chown -R www-data:www-data /var/www
 				sudo mkdir /var/www/temp_videos
-				sudo chmod pi /var/www/temp_videos
+				sudo chown pi /var/www/temp_videos
         sudo mknod /var/www/FIFO p
 				sudo mknod /var/www/FIFO2 p
-				sudo mknod /var/www/bootstrapper_pipe
+				sudo mknod /var/www/bootstrapper_pipe p
 				sudo chmod 666 /var/www/bootstrapper_pipe
         sudo chmod 666 /var/www/FIFO
 				sudo chmod 666 /var/www/FIFO2
@@ -90,8 +92,8 @@ case "$1" in
         sudo cp -r etc/raspimjpeg/raspimjpeg /etc/
         sudo chmod 644 /etc/raspimjpeg
 
-        sudo cp -r etc/rc_local_run/rc.local /etc/
-        sudo chmod 755 /etc/rc.local
+        #sudo cp -r etc/rc_local_run/rc.local /etc/
+        #sudo chmod 755 /etc/rc.local
 
         sudo cp -r etc/motion/motion.conf /etc/motion/
         sudo chmod 640 /etc/motion/motion.conf

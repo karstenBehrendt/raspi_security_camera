@@ -46,7 +46,7 @@ video_width 1920
 video_height 1080
 video_fps 25
 video_bitrate 17000000
-MP4Box true
+MP4Box false
 MP4Box_fps 25
 
 #

@@ -17,25 +17,11 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-shopt -s nullglob
+sudo mount -o size=250M -t tmpfs none /var/www/ram_location/
+sudo chown pi /var/www/ram_location
 
-video=-1
-for f in /var/www/media/video_*.mp4; do
-  video=`echo $f | cut -d '_' -f2 | cut -d '.' -f1`
-done
-video=`echo $video | sed 's/^0*//'`
-video=$((video+1))
+sudo -u pi python /home/pi/raspi_security_cam/security_camera.py &
 
-image=-1
-for f in /var/www/media/image_*.jpg; do
-  image=`echo $f | cut -d '_' -f2 | cut -d '.' -f1`
-done
-image=`echo $image | sed 's/^0*//'`
-image=$((image+1))
 
-shopt -u nullglob
-
-mkdir /dev/shm/mjpeg
-raspimjpeg -ic $image -vc $video > /dev/null &
 
 exit 0

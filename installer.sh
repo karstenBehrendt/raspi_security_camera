@@ -45,29 +45,29 @@ case "$1" in
         ;;
 
   autostart_yes)
-				sudo bash -c "sudo mount -o size=250M -t tmpfs none /var/www/ram_location/' >> /etc/rc.local"
-				sudo bash -c "sudo chown pi /var/www/ram_location' >> /etc/rc.local"
-				sudo bash -c "sudo -u pi python /home/pi/raspi_security_cam/security_camera.py &' >> /etc/rc.local"
+				sudo cp -r etc/rc_local_run/rc.local /etc/
         echo "autostart is active"
         ;;
 
   autostart_no)
-				echo "to remove this tool from the autostart: "
-				echo "remove a few lines from /etc/rc.local"
-				echo "good luck"
-        echo "Sorry. "
+				sudo cp -r etc/rc_local_std/rc.local /etc/
+        echo "autostart not active "
         ;;
 
   install)
         sudo killall raspimjpeg
         git pull origin master
+				sudo apt-get update
+				sudo apt-get -y upgrade
         sudo apt-get install -y apache2 php5 libapache2-mod-php5 gpac motion
 
+				sudo mkdir /var/www/
         sudo cp -r www/* /var/www/
 				sudo cp www/.htaccess /var/www/
 				sudo cp www/.htpasswd /var/www/
 				sudo chmod 644 /var/www/.htaccess /var/www/.htpasswd
         sudo mkdir -p /var/www/media
+	sudo chmod 777 /var/www/media
         sudo chown -R www-data:www-data /var/www
 				sudo mkdir /var/www/temp_videos
 				sudo chown pi /var/www/temp_videos

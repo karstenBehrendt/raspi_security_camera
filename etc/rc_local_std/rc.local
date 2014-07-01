@@ -17,4 +17,8 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
+sudo mount -o size=250M -t tmpfs none /var/www/ram_location/
+sudo chown pi /var/www/ram_location
+
+
 exit 0

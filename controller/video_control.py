@@ -218,8 +218,9 @@ def main():
 
 	queue = [] # videos to be processed
 	
-	# create ram directory
-	os.system("mkdir " + ram_location)
+	# Create temporary location if not created yet. 
+	# For using memory set ram_location to /var/www/ram_location/
+	os.system("sudo mkdir " + ram_location)
 
 	
 	# clear pipe

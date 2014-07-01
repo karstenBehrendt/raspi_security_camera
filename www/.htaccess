@@ -4,6 +4,6 @@ AuthName "Camera Access"
 #Require valid-user
 
 
-<Files "index.html">
-	Require valid-user
-</Files>
+#<Files "index.html">
+#	Require valid-user
+#</Files>

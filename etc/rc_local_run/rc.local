@@ -20,8 +20,8 @@ fi
 sudo mount -o size=250M -t tmpfs none /var/www/ram_location/
 sudo chown pi /var/www/ram_location
 
-sudo -u pi python /home/pi/raspi_security_cam/security_camera.py &
+sudo -u pi python /home/pi/raspi_security_camera/security_camera.py &
 
 
 
-exit 0
+
